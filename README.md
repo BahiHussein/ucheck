@@ -7,7 +7,7 @@ Install the library with npm install ucheck
 ```
 var uCheck = require('ucheck');
 
-app.use(Ucheck.init);
+app.use(uCheck.init);
 
 ```
 
@@ -18,14 +18,14 @@ app.use(Ucheck.init);
 var x = [
 
         {
-            param: 'username',
+            param: 'person.username',
             label: 'Username',
             required: true,
             type: 'string',
             length: { min: 3 , max: 16},
             regex: /^[a-z0-9_-]{3,16}$/
         },{
-            param: 'password',
+            param: 'person.password',
             label: 'Password',
             required: true,
             type: 'string',
