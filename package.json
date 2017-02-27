@@ -1,0 +1,11 @@
+{
+  "name": "ucheck",
+  "version": "1.0.7",
+  "description": "express req.body validator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bahi Hussein",
+  "license": "ISC"
+}
