@@ -46,20 +46,20 @@ var x = [{
         }]
 
 
-        //create instance and pass the array x to be validated
-        let ucheck = new uCheck.validate(req).scenario(x);
+//create instance and pass the array x to be validated
+let ucheck = new uCheck.validate(req).scenario(x);
 
-        //returns true if there were any validation errors
-        if(ucheck.hasErrors()){
-            
-            //returns human readable error messages
-            res.status(400).send({error: ucheck.getErrors()});
-            return false;
+//returns true if there were any validation errors
+if(ucheck.hasErrors()){
+    
+    //returns human readable error messages
+    res.status(400).send({error: ucheck.getErrors()});
+    return false;
 
-        } else {
-            //validation is OK! 
-            //do something
-        }
+} else {
+    //validation is OK! 
+    //do something
+}
 ```
 
 
