@@ -15,7 +15,9 @@ app.use(Ucheck.init);
 
 ```javascript
 
-var x = [{
+var x = [
+
+        {
             param: 'username',
             label: 'Username',
             required: true,
@@ -43,7 +45,8 @@ var x = [{
             type: 'string',
             length: {min: 15, max: 30},
             regex: /^[a-z0-9_-]{15,30}$/
-        }]
+        }
+]
 
 
 //create instance and pass the array x to be validated
@@ -65,14 +68,15 @@ if(ucheck.hasErrors()){
 
 #Validationg Options 
 
-. param [string]: the name of the param in req.body
-. label [string]: how the param will appear in error messages 
-. required [Boolean]: check the presence of the param
-. type [string] (string|number|boolean|array|object): check the type of param
-. length [object {min:number, max: number}]: check the length of the param 
-. regex [regex]: test the param aganist regex
+* param [string]: the name of the param in req.body
+* label [string]: how the param will appear in error messages 
+* required [Boolean]: check the presence of the param
+* type [string] (string|number|boolean|array|object): check the type of param
+* length [object {min:number, max: number}]: check the length of the param 
+* regex [regex]: test the param aganist regex
 
 #Methods
-. hasError: return boolean
-. getErrors: returns error array 
+
+* hasError: return boolean
+* getErrors: returns error array 
 
