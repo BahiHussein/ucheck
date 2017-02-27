@@ -1,4 +1,4 @@
-let Say = {
+var Say = {
 
 	"notFound": "not found",
 	"missingParams": "missing params",
@@ -31,13 +31,13 @@ function getMethods(obj)
  * @param  {object}b like {x:{y:{z:1}}}
  * @return {any} 
  */
-let findKeyInObject = function(s, o) {
+var findKeyInObject = function(s, o) {
 	try {
 		s = s.replace(/\[(\w+)\]/g, '.$1'); 
 	    s = s.replace(/^\./, '');
-	    let a = s.split('.');
-	    for (let i = 0, n = a.length; i < n; ++i) {
-	        let k = a[i];
+	    var a = s.split('.');
+	    for (var i = 0, n = a.length; i < n; ++i) {
+	        var k = a[i];
 	        if (k in o) {
 	            o = o[k];
 	        } else {
@@ -50,7 +50,7 @@ let findKeyInObject = function(s, o) {
 	}
 }
 
-let Validate = function(req){
+var Validate = function(req){
 	this.req = req;
 	this.say = Say;
 	this.labels = [];
@@ -76,11 +76,11 @@ Validate.prototype.setLabels = function(labels=[]){
 }
 
 Validate.prototype.injectLabel = function(obj){
-	let f = this.labels.filter((x)=>{
+	var f = this.labels.filter((x)=>{
 		return (obj.param in x);
 	})
 	if(f.length == 0){
-		let v = {};
+		var v = {};
 		v[obj.param] = obj.label;
 		this.labels.push(v);
 	}
@@ -95,7 +95,7 @@ Validate.prototype.injectLabel = function(obj){
 Validate.prototype.required = function(objsArray){
 	console.log("~_~_~_~_~_~_~_~_~__~__~_` required");
 	console.log(objsArray);
-	let paramValue;
+	var paramValue;
 	for(obj of objsArray){
 		paramValue = findKeyInObject(obj.param, this.req.body);
 		if((obj.opts) && (!paramValue)){
@@ -123,7 +123,7 @@ Validate.prototype.regex = function(objsArray){
 				this.pushError(obj.param, this.say.missingOpts+ "=>[Regex]"); return false;
 			}
 			//check regex validation
-			let pattern = new RegExp(obj.opts);
+			var pattern = new RegExp(obj.opts);
 			if(pattern.test(paramValue) == false){
 				this.pushError(obj.param, this.say.invalidFormat);
 			}
@@ -141,7 +141,7 @@ Validate.prototype.regex = function(objsArray){
  */
 Validate.prototype.length = function(objsArray){
 	console.log("~_~_~_~_~_~_~_~_~__~__~_` value length");
-	let paramValue;
+	var paramValue;
 	for(obj of objsArray){
 		paramValue = findKeyInObject(obj.param, this.req.body);
 		if(paramValue){
@@ -161,7 +161,7 @@ Validate.prototype.length = function(objsArray){
  */
 Validate.prototype.type = function(objsArray){
 	console.log("~_~_~_~_~_~_~_~_~__~__~_` value type");
-	let paramValue;
+	var paramValue;
 	for(obj of objsArray){
 
 		paramValue = findKeyInObject(obj.param, this.req.body);
@@ -169,7 +169,7 @@ Validate.prototype.type = function(objsArray){
 		if(paramValue){
 
 			obj.opts = obj.opts.toString().toLowerCase();
-			let error = 0;
+			var error = 0;
 
 			switch(obj.opts) {
 			    case "string":
@@ -211,8 +211,8 @@ Validate.prototype.type = function(objsArray){
  */
 Validate.prototype.OneOf = function(objsArray){
 	console.log("~_~_~_~_~_~_~_~_~__~__~_` oneOF");
-	let paramValue;
-	let found = 0;
+	var paramValue;
+	var found = 0;
 	for(obj of objsArray){
 		paramValue = findKeyInObject(obj.param, this.req.body);
 		if(paramValue){
@@ -234,7 +234,7 @@ Validate.prototype.getErrors = function(){
 
 	if(this.labels){
 		this.req.errors.map((error)=>{
-			let result = this.labels.filter((label)=>{
+			var result = this.labels.filter((label)=>{
 				return (label[error.param]);
 			})
 			result = result[0];
@@ -262,8 +262,8 @@ Validate.prototype.pushError = function(param, message){
 
 Validate.prototype.scenario = function(scenario){
 
-	let methods = getMethods(this);
-	let cmdList = [];
+	var methods = getMethods(this);
+	var cmdList = [];
 
 	for(method of methods){
 		cmdList.push(
