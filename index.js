@@ -1,7 +1,6 @@
 var Say = {
 
-	"notFound": "not found",
-	"missingParams": "missing params",
+	"missingParam": "missing params",
 	"invalidFormat":"invalid format",
 	"invalidLength":"invalid length",
 	"missingOpts":"Missing Options"
@@ -51,6 +50,9 @@ var findKeyInObject = function(s, o) {
 }
 
 var Validate = function(req){
+	//create the erros array
+	req.errors = [];
+	//init
 	this.req = req;
 	this.say = Say;
 	this.labels = [];
@@ -61,7 +63,7 @@ var Validate = function(req){
  * accept error messages using a predefined keys
  * @param {Object} errorMessages 
  */
-Validate.prototype.setSay = function(errorMessages){
+Validate.prototype.setMsgs= function(errorMessages){
 	this.say = errorMessages || Say;
 	return this;
 };
@@ -93,13 +95,11 @@ Validate.prototype.injectLabel = function(obj){
  * @return {Boolean}             [description]
  */
 Validate.prototype.required = function(objsArray){
-	console.log("~_~_~_~_~_~_~_~_~__~__~_` required");
-	console.log(objsArray);
 	var paramValue;
 	for(obj of objsArray){
 		paramValue = findKeyInObject(obj.param, this.req.body);
 		if((obj.opts) && (!paramValue)){
-			this.pushError(obj.param, this.say.missingParams);
+			this.pushError(obj.param, this.say.missingParam);
 		}
 	}
 	return this;
@@ -111,7 +111,6 @@ Validate.prototype.required = function(objsArray){
  * @return {this}
  */
 Validate.prototype.regex = function(objsArray){
-	console.log("~_~_~_~_~_~_~_~_~__~__~_` regex");
 	for(obj of objsArray){
 
 		paramValue = findKeyInObject(obj.param, this.req.body);
@@ -140,7 +139,6 @@ Validate.prototype.regex = function(objsArray){
  * @return {this}         
  */
 Validate.prototype.length = function(objsArray){
-	console.log("~_~_~_~_~_~_~_~_~__~__~_` value length");
 	var paramValue;
 	for(obj of objsArray){
 		paramValue = findKeyInObject(obj.param, this.req.body);
@@ -160,7 +158,6 @@ Validate.prototype.length = function(objsArray){
  * @return {[type]}           [description]
  */
 Validate.prototype.type = function(objsArray){
-	console.log("~_~_~_~_~_~_~_~_~__~__~_` value type");
 	var paramValue;
 	for(obj of objsArray){
 
@@ -206,23 +203,21 @@ Validate.prototype.type = function(objsArray){
 /**
  * check if value is one of options
  * @param  {[type]} this.req [description]
- * @param  {[objs]} objsArray [{param:'x.s.d', options: Array}]
+ * @param  {[objs]} objsArray [{param:'x.s.d', opts: Array}]
  * @return {void}     
  */
 Validate.prototype.OneOf = function(objsArray){
-	console.log("~_~_~_~_~_~_~_~_~__~__~_` oneOF");
 	var paramValue;
 	var found = 0;
 	for(obj of objsArray){
 		paramValue = findKeyInObject(obj.param, this.req.body);
 		if(paramValue){
-			for(opt of obj.options){
+			for(opt of obj.opts){
 				if(paramValue === opt){
 					found++;
 				}
 			}
 		}
-
 		if(found==0){
 			this.pushError(obj.param, this.say.unknownValue)
 		};
@@ -303,17 +298,10 @@ Validate.prototype.scenario = function(scenario){
 		this[cmd.method](cmd.args);
 	}
 
-	console.log(cmdList);
-	console.log(this.labels);
-
 	return this;
 }
 
 
 module.exports = {
-	validate: Validate,
-	init: function(req, res, next) {
-	  req.errors = [];
-	  next();
-	}
+	validate: Validate
 };
