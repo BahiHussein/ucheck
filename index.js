@@ -23,6 +23,17 @@ function getMethods(obj)
     return res;
 }
 
+var Validate = function(req){
+	//create the erros array
+	req.errors = [];
+	//init
+	this.req = req;
+	this.say = Say;
+	this.labels = [];
+	this.found = 0;
+	return this;
+}
+
 /**
  * get nested keys using string
  * Usage findKey('x.s.d', object);
@@ -30,7 +41,8 @@ function getMethods(obj)
  * @param  {object}b like {x:{y:{z:1}}}
  * @return {any} 
  */
-var findKeyInObject = function(s, o) {
+Validate.prototype.findKeyInObject = function(s) {
+	var o = this.req.body;
 	try {
 		s = s.replace(/\[(\w+)\]/g, '.$1'); 
 	    s = s.replace(/^\./, '');
@@ -47,16 +59,6 @@ var findKeyInObject = function(s, o) {
 	} catch(err) {
 		return false;
 	}
-}
-
-var Validate = function(req){
-	//create the erros array
-	req.errors = [];
-	//init
-	this.req = req;
-	this.say = Say;
-	this.labels = [];
-	return this;
 }
 
 /**
@@ -94,41 +96,44 @@ Validate.prototype.injectLabel = function(obj){
  * @param  {[type]} objsArray {param:'x'}
  * @return {Boolean}             [description]
  */
-Validate.prototype.required = function(objsArray){
-	var paramValue;
-	for(obj of objsArray){
-		paramValue = findKeyInObject(obj.param, this.req.body);
-		if((obj.opts) && (!paramValue)){
-			this.pushError(obj.param, this.say.missingParam);
-		}
+Validate.prototype.required = function(paramValue, obj){
+
+	if((obj.opts) && (!paramValue)){
+		this.pushError(obj.param, this.say.missingParam);
 	}
 	return this;
 }
+
+
+/**
+ * array of objects {param:'teamname' label:'Team Name'}
+ * @param {Array} label [description]
+ */
+Validate.prototype.canBe = function(){
+
+
+}
+
 
 /**
  * if param exists it will check its regex validation
  * @param  {[objects]} objsArray {param: 'person.name', opts:{regex:'/a123/'}}     
  * @return {this}
  */
-Validate.prototype.regex = function(objsArray){
-	for(obj of objsArray){
+Validate.prototype.regex = function(paramValue, obj){
 
-		paramValue = findKeyInObject(obj.param, this.req.body);
-
-		//only if param exists - it doesn't check for this.required
-		if(paramValue){
-			//check if regex provided
-			if(!obj.opts){
-				this.pushError(obj.param, this.say.missingOpts+ "=>[Regex]"); return false;
-			}
-			//check regex validation
-			var pattern = new RegExp(obj.opts);
-			if(pattern.test(paramValue) == false){
-				this.pushError(obj.param, this.say.invalidFormat);
-			}
+	//only if param exists - it doesn't check for this.required
+	if(paramValue){
+		//check if regex provided
+		if(!obj.opts){
+			this.pushError(obj.param, this.say.missingOpts+ "=>[Regex]"); return false;
+		}
+		//check regex validation
+		var pattern = new RegExp(obj.opts);
+		if(pattern.test(paramValue) == false){
+			this.pushError(obj.param, this.say.invalidFormat);
 		}
 	}
-
 	return this;
 }
 
@@ -138,16 +143,14 @@ Validate.prototype.regex = function(objsArray){
  * @param  {[obj]} objsArray {param: 'man.age', opts:{min:12, max:23}}
  * @return {this}         
  */
-Validate.prototype.length = function(objsArray){
-	var paramValue;
-	for(obj of objsArray){
-		paramValue = findKeyInObject(obj.param, this.req.body);
-		if(paramValue){
-			if(!(paramValue.length >= parseInt(obj.opts.min)) || !(paramValue.length <= parseInt(obj.opts.max))){
-				this.pushError(obj.param, `${this.say.invalidLength} ${obj.opts.min} to ${obj.opts.max} characters required`);
-			}
+Validate.prototype.length = function(paramValue, obj){
+
+	if(paramValue){
+		if(!(paramValue.length >= parseInt(obj.opts.min)) || !(paramValue.length <= parseInt(obj.opts.max))){
+			this.pushError(obj.param, `${this.say.invalidLength} ${obj.opts.min} to ${obj.opts.max} characters required`);
 		}
 	}
+	
 	return this;
 }
 
@@ -157,12 +160,8 @@ Validate.prototype.length = function(objsArray){
  * @param  {[type]} objsArray {param: opts:any}
  * @return {[type]}           [description]
  */
-Validate.prototype.type = function(objsArray){
-	var paramValue;
-	for(obj of objsArray){
-
-		paramValue = findKeyInObject(obj.param, this.req.body);
-
+Validate.prototype.type = function(paramValue, obj){
+	
 		if(paramValue){
 
 			obj.opts = obj.opts.toString().toLowerCase();
@@ -196,7 +195,8 @@ Validate.prototype.type = function(objsArray){
 
 		}
 
-	}
+	return this;
+
 }
 
 
@@ -206,22 +206,19 @@ Validate.prototype.type = function(objsArray){
  * @param  {[objs]} objsArray [{param:'x.s.d', opts: Array}]
  * @return {void}     
  */
-Validate.prototype.OneOf = function(objsArray){
-	var paramValue;
-	var found = 0;
-	for(obj of objsArray){
-		paramValue = findKeyInObject(obj.param, this.req.body);
+Validate.prototype.OneOf = function(paramValue, obj){
+
+
 		if(paramValue){
 			for(opt of obj.opts){
 				if(paramValue === opt){
-					found++;
+					this.found++;
 				}
 			}
 		}
-		if(found==0){
+		if(this.found==0){
 			this.pushError(obj.param, this.say.unknownValue)
 		};
-	}
 	return this;
 }
 
@@ -293,9 +290,12 @@ Validate.prototype.scenario = function(scenario){
 	cmdList = cmdList.filter((cmd)=>{
 		return (cmd.args.length>0);
 	})
-
+	
 	for(cmd of cmdList){
-		this[cmd.method](cmd.args);
+		for(arg of cmd.args){
+			var paramValue = this.findKeyInObject(arg.param);
+			this[cmd.method](paramValue, arg);
+		}
 	}
 
 	return this;
