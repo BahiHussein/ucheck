@@ -3,7 +3,8 @@ var Say = {
 	"missingParam": "missing params",
 	"invalidFormat":"invalid format",
 	"invalidLength":"invalid length",
-	"missingOpts":"Missing Options"
+	"missingOpts":"Missing Options",
+	"unknownValue":"unknown value"
 		
 }
 
@@ -208,17 +209,17 @@ Validate.prototype.type = function(paramValue, obj){
  */
 Validate.prototype.OneOf = function(paramValue, obj){
 
-
 		if(paramValue){
 			for(opt of obj.opts){
 				if(paramValue === opt){
 					this.found++;
 				}
 			}
+			if(this.found==0){
+				this.pushError(obj.param, this.say.unknownValue)
+			};
 		}
-		if(this.found==0){
-			this.pushError(obj.param, this.say.unknownValue)
-		};
+		
 	return this;
 }
 
