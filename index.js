@@ -31,7 +31,6 @@ var Validate = function(req){
 	this.req = req;
 	this.say = Say;
 	this.labels = [];
-	this.found = 0;
 	return this;
 }
 
@@ -207,18 +206,14 @@ Validate.prototype.type = function(paramValue, obj){
  * @param  {[objs]} objsArray [{param:'x.s.d', opts: Array}]
  * @return {void}     
  */
-Validate.prototype.OneOf = function(paramValue, obj){
-
+Validate.prototype.oneOf = function(paramValue, obj){
 		if(paramValue){
-			for(opt of obj.opts){
-				if(paramValue === opt){
-					this.found++;
-				}
-			}
-			if(this.found==0){
+			
+			if(!(obj.opts.find(e=>e==paramValue))){
 				this.pushError(obj.param, this.say.unknownValue)
-			};
+			}
 		}
+        
 		
 	return this;
 }
@@ -281,9 +276,7 @@ Validate.prototype.scenario = function(scenario){
 
 				//push to labels- so erros could be generated later
 				this.injectLabel({param: item.param, label: item.label || "" });
-
-
-			} 
+			}  
 		});
 	}
 
