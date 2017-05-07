@@ -4,8 +4,7 @@ var Say = {
 	"invalidFormat":"invalid format",
 	"invalidLength":"invalid length",
 	"missingOpts":"Missing Options",
-	"unknownValue":"unknown value"
-		
+	"unknownValue":"unknown value"		
 }
 
 /**
@@ -26,6 +25,7 @@ function getMethods(obj)
 
 var Validate = function(req){
 	//create the erros array
+	//[{msg:'', param:'', label:''}]
 	req.errors = [];
 	//init
 	this.req = req;
@@ -79,6 +79,7 @@ Validate.prototype.setLabels = function(labels=[]){
 	return this;
 }
 
+//
 Validate.prototype.injectLabel = function(obj){
 	var f = this.labels.filter((x)=>{
 		return (obj.param in x);
@@ -106,16 +107,6 @@ Validate.prototype.required = function(paramValue, obj){
 
 
 /**
- * array of objects {param:'teamname' label:'Team Name'}
- * @param {Array} label [description]
- */
-Validate.prototype.canBe = function(){
-
-
-}
-
-
-/**
  * if param exists it will check its regex validation
  * @param  {[objects]} objsArray {param: 'person.name', opts:{regex:'/a123/'}}     
  * @return {this}
@@ -130,7 +121,7 @@ Validate.prototype.regex = function(paramValue, obj){
 		}
 		//check regex validation
 		var pattern = new RegExp(obj.opts);
-		if(pattern.test(paramValue) == false){
+		if(pattern.test(paramValue.toString()) == false){
 			this.pushError(obj.param, this.say.invalidFormat);
 		}
 	}
@@ -152,6 +143,29 @@ Validate.prototype.length = function(paramValue, obj){
 	}
 	
 	return this;
+}
+
+/**
+ * array of objects {param:'teamname' label:'Team Name'}
+ * @param {Array} label [description]
+ */
+Validate.prototype.canParse = function(paramValue, obj){
+
+	if(paramValue){
+		switch (obj.opts.to){
+			case 'float':
+				if(!parseFloat(paramValue)){
+					this.pushError(obj.param, `${this.say.invalidFormat}`);
+				}
+				break;
+			case 'int': 
+				if(!parseInt(paramValue)){
+					this.pushError(obj.param, `${this.say.invalidFormat}`);
+				}
+				break;
+			default:
+		}
+	}
 }
 
 
@@ -207,17 +221,16 @@ Validate.prototype.type = function(paramValue, obj){
  * @return {void}     
  */
 Validate.prototype.oneOf = function(paramValue, obj){
-		if(paramValue){
-			
-			if(!(obj.opts.find(e=>e==paramValue))){
-				this.pushError(obj.param, this.say.unknownValue)
-			}
+	if(paramValue){
+		if(!(obj.opts.find(e=>e==paramValue))){
+			this.pushError(obj.param, this.say.unknownValue)
 		}
-        
-		
+	}
 	return this;
 }
 
+//returns human readable error
+//add label to each  object and returns error array
 Validate.prototype.getErrors = function(){
 
 	if(this.labels){
@@ -250,9 +263,11 @@ Validate.prototype.pushError = function(param, message){
 
 Validate.prototype.scenario = function(scenario){
 
+	//getting all package methods
 	var methods = getMethods(this);
 	var cmdList = [];
 
+	//creating new array or methods and arguments that should be passed to it
 	for(method of methods){
 		cmdList.push(
 			{
@@ -270,11 +285,10 @@ Validate.prototype.scenario = function(scenario){
 					{
 						param: item.param,
 						opts: item[cmd.method]
-
 					}
 				);
 
-				//push to labels- so erros could be generated later
+				//pushing - so erros could be generated later
 				this.injectLabel({param: item.param, label: item.label || "" });
 			}  
 		});
