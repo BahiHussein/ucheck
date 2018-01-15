@@ -190,6 +190,24 @@ example of a returned error array
 
 ```
 
+* canParse {[array of strings]}
+```
+
+{
+    param: "money",
+    label: "Cash",
+    canParse: "int"
+}
+
+{
+    param: "money",
+    label: "Cash",
+    canParse: "float"
+}
+
+
+```
+
 
 #Methods
 * validate: accepts express req object parsed with body parser

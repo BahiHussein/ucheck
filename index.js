@@ -130,27 +130,28 @@ Validate.prototype.regex = function(paramValue, obj){
 
 
 /**
- * check the length of provided param if exists
- * @param  {[obj]} objsArray {param: 'man.age', opts:{min:12, max:23}}
+ * validate length
+ * @param  {[obj]} objsArray 
  * @return {this}         
  */
 Validate.prototype.length = function(paramValue, obj){
-
 	if(paramValue){
-		if(!(paramValue.length >= parseInt(obj.opts.min)) || !(paramValue.length <= parseInt(obj.opts.max))){
-			this.pushError(obj.param, `${this.say.invalidLength} ${obj.opts.min} to ${obj.opts.max} characters required`);
+		newParamValue = paramValue
+		if(typeof paramValue == "number"){
+			newParamValue = paramValue.toString();
+		}
+		
+		if(!(newParamValue.length >= parseInt(obj.opts.min)) || !(newParamValue.length <= parseInt(obj.opts.max))){
+			this.pushError(obj.param, `${this.say.invalidLength}`);
 		}
 	}
-	
 	return this;
 }
 
 /**
- * array of objects {param:'teamname' label:'Team Name'}
  * @param {Array} label [description]
  */
 Validate.prototype.canParse = function(paramValue, obj){
-
 	if(paramValue){
 		switch (obj.opts.to){
 			case 'float':
