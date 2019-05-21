@@ -1,6 +1,6 @@
 {
   "name": "ucheck",
-  "version": "1.3",
+  "version": "1.3.0",
   "description": "express req.body validator",
   "main": "index.js",
   "scripts": {
