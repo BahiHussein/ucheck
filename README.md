@@ -205,6 +205,11 @@ example of a returned error array
     canParse: "float"
 }
 
+{
+    param: "daet",
+    label: "submit date",
+    canParse: "date"
+}
 
 ```
 

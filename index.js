@@ -153,9 +153,14 @@ Validate.prototype.length = function(paramValue, obj){
  */
 Validate.prototype.canParse = function(paramValue, obj){
 	if(paramValue){
-		switch (obj.opts.to){
+		switch (obj.opts){
 			case 'float':
 				if(!parseFloat(paramValue)){
+					this.pushError(obj.param, `${this.say.invalidFormat}`);
+				}
+				break;
+			case 'date':
+				if(!((new Date(paramValue) !== "Invalid Date") && !isNaN(new Date(paramValue)))){
 					this.pushError(obj.param, `${this.say.invalidFormat}`);
 				}
 				break;
